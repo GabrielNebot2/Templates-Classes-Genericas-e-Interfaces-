@@ -1,0 +1,197 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <cstdlib>
+#include <ctime>
+
+using namespace std;
+
+class Item {
+protected:
+    string nome;
+    int bonus;
+
+public:
+    Item(string nome, int bonus) {
+        this->nome = nome;
+        this->bonus = bonus;
+    }
+
+    virtual int getBonus() = 0;
+
+    string getNome() {
+        return nome;
+    }
+};
+
+class Espada : public Item {
+public:
+    Espada() : Item("Espada", 10) {}
+
+    int getBonus() override {
+        return bonus;
+    }
+};
+
+class Escudo : public Item {
+public:
+    Escudo() : Item("Escudo", 5) {}
+
+    int getBonus() override {
+        return bonus;
+    }
+};
+
+class Personagem {
+private:
+    string nome;
+    int vida;
+    int ataqueBase;
+    int defesaBase;
+    vector<Item*> inventario;
+    Item* itemEquipado;
+
+public:
+    Personagem(string nome, int vida, int ataque, int defesa) {
+        this->nome = nome;
+        this->vida = vida;
+        this->ataqueBase = ataque;
+        this->defesaBase = defesa;
+        itemEquipado = nullptr;
+    }
+
+    void mostrarInventario() {
+        if (inventario.empty()) {
+            cout << "Inventario vazio.\n";
+            return;
+        }
+
+        for (int i = 0; i < inventario.size(); i++) {
+            cout << i << " - " << inventario[i]->getNome() << endl;
+        }
+    }
+
+    void selecionarItem() {
+        if (inventario.empty()) {
+            itemEquipado = nullptr;
+            return;
+        }
+
+        cout << "\nInventario de " << nome << ":\n";
+        mostrarInventario();
+
+        int escolha;
+        cout << "Escolha um item: ";
+        cin >> escolha;
+
+        if (escolha >= 0 && escolha < inventario.size()) {
+            itemEquipado = inventario[escolha];
+        }
+    }
+
+    void atacar(Personagem &inimigo) {
+        int dano = ataqueBase;
+
+        if (itemEquipado != nullptr && itemEquipado->getNome() == "Espada") {
+            dano += itemEquipado->getBonus();
+        }
+
+        int defesa = inimigo.defesaBase;
+
+        if (inimigo.itemEquipado != nullptr && inimigo.itemEquipado->getNome() == "Escudo") {
+            defesa += inimigo.itemEquipado->getBonus();
+        }
+
+        dano -= defesa;
+
+        if (dano < 1) {
+            dano = 1;
+        }
+
+        inimigo.vida -= dano;
+
+        cout << nome << " atacou " << inimigo.nome
+             << " causando " << dano << " de dano.\n";
+
+        if (inimigo.vida < 0) {
+            inimigo.vida = 0;
+        }
+
+        cout << "Vida de " << inimigo.nome << ": "
+             << inimigo.vida << endl;
+    }
+
+    bool estaVivo() {
+        return vida > 0;
+    }
+
+    void resetarVida() {
+        vida = 100;
+    }
+
+    string getNome() {
+        return nome;
+    }
+
+    void adicionarItem(Item* item) {
+        inventario.push_back(item);
+        cout << nome << " recebeu: " << item->getNome() << endl;
+    }
+};
+
+int main() {
+    srand(time(0));
+
+    Personagem p1("Guerreiro", 100, 15, 3);
+    Personagem p2("Cavaleiro", 100, 12, 5);
+
+    char continuar = 's';
+
+    while (continuar == 's') {
+        p1.resetarVida();
+        p2.resetarVida();
+
+        cout << "\n=== Selecionar Itens ===\n";
+
+        cout << "\n" << p1.getNome() << endl;
+        p1.selecionarItem();
+
+        cout << "\n" << p2.getNome() << endl;
+        p2.selecionarItem();
+
+        cout << "\n=== Inicio da Batalha ===\n";
+
+        while (p1.estaVivo() && p2.estaVivo()) {
+            p1.atacar(p2);
+
+            if (!p2.estaVivo()) {
+                break;
+            }
+
+            p2.atacar(p1);
+        }
+
+        Personagem* vencedor;
+
+        if (p1.estaVivo()) {
+            vencedor = &p1;
+        } else {
+            vencedor = &p2;
+        }
+
+        cout << "\nVencedor: " << vencedor->getNome() << endl;
+
+        int itemAleatorio = rand() % 2;
+
+        if (itemAleatorio == 0) {
+            vencedor->adicionarItem(new Espada());
+        } else {
+            vencedor->adicionarItem(new Escudo());
+        }
+
+        cout << "\nDeseja iniciar outro combate? (s/n): ";
+        cin >> continuar;
+    }
+
+    return 0;
+}
