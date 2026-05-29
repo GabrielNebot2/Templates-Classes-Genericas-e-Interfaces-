@@ -1,0 +1,212 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+class Controlavel {
+public:
+    virtual void ligar() = 0;
+    virtual void desligar() = 0;
+};
+
+class Relatavel {
+public:
+    virtual void gerarRelatorio() = 0;
+};
+
+class Atualizavel {
+public:
+    virtual void atualizarFirmware() = 0;
+};
+
+class Lampada : public Controlavel, public Relatavel {
+private:
+    bool ligada;
+
+public:
+    Lampada() {
+        ligada = false;
+    }
+
+    void ligar() override {
+        ligada = true;
+        cout << "Lampada ligada\n";
+    }
+
+    void desligar() override {
+        ligada = false;
+        cout << "Lampada desligada\n";
+    }
+
+    void gerarRelatorio() override {
+        if (ligada) {
+            cout << "Lampada funcionando normalmente\n";
+        } else {
+            cout << "Lampada desligada\n";
+        }
+    }
+};
+
+class CameraSeguranca : public Controlavel, public Relatavel {
+private:
+    bool ligada;
+
+public:
+    CameraSeguranca() {
+        ligada = false;
+    }
+
+    void ligar() override {
+        ligada = true;
+        cout << "Camera ligada\n";
+    }
+
+    void desligar() override {
+        ligada = false;
+        cout << "Camera desligada\n";
+    }
+
+    void gerarRelatorio() override {
+        if (ligada) {
+            cout << "Camera monitorando ambiente\n";
+        } else {
+            cout << "Nao e possivel gerar relatorio. Camera desligada\n";
+        }
+    }
+};
+
+class FechaduraInteligente : public Controlavel, public Atualizavel {
+private:
+    bool travada;
+
+public:
+    FechaduraInteligente() {
+        travada = true;
+    }
+
+    void ligar() override {
+        travada = true;
+        cout << "Fechadura ativada\n";
+    }
+
+    void desligar() override {
+        travada = false;
+        cout << "Fechadura desativada\n";
+    }
+
+    void atualizarFirmware() override {
+        if (!travada) {
+            cout << "Firmware atualizado com sucesso\n";
+        } else {
+            cout << "Nao e possivel atualizar. Fechadura travada\n";
+        }
+    }
+};
+
+class SensorMovimento : public Controlavel, public Relatavel {
+private:
+    bool ligado;
+    int movimentos;
+
+public:
+    SensorMovimento() {
+        ligado = false;
+        movimentos = 3;
+    }
+
+    void ligar() override {
+        ligado = true;
+        cout << "Sensor de movimento ligado\n";
+    }
+
+    void desligar() override {
+        ligado = false;
+        cout << "Sensor de movimento desligado\n";
+    }
+
+    void gerarRelatorio() override {
+        if (ligado) {
+            while (movimentos > 0) {
+                cout << "Movimento detectado\n";
+                movimentos--;
+            }
+
+            cout << "Nenhum movimento restante\n";
+        } else {
+            cout << "Sensor desligado\n";
+        }
+    }
+};
+
+class SmartTV : public Controlavel, public Atualizavel, public Relatavel {
+private:
+    bool ligada;
+
+public:
+    SmartTV() {
+        ligada = false;
+    }
+
+    void ligar() override {
+        ligada = true;
+        cout << "TV ligada\n";
+    }
+
+    void desligar() override {
+        ligada = false;
+        cout << "TV desligada\n";
+    }
+
+    void gerarRelatorio() override {
+        if (ligada) {
+            cout << "TV funcionando corretamente\n";
+        } else {
+            cout << "TV desligada\n";
+        }
+    }
+
+    void atualizarFirmware() override {
+        if (ligada) {
+            cout << "Atualizacao realizada na TV\n";
+        } else {
+            cout << "Ligue a TV para atualizar\n";
+        }
+    }
+};
+
+int main() {
+    Lampada lampada;
+    CameraSeguranca camera;
+    FechaduraInteligente fechadura;
+    SensorMovimento sensor;
+    SmartTV tv;
+
+    lampada.ligar();
+    lampada.gerarRelatorio();
+
+    cout << endl;
+
+    camera.gerarRelatorio();
+    camera.ligar();
+    camera.gerarRelatorio();
+
+    cout << endl;
+
+    fechadura.atualizarFirmware();
+    fechadura.desligar();
+    fechadura.atualizarFirmware();
+
+    cout << endl;
+
+    sensor.ligar();
+    sensor.gerarRelatorio();
+
+    cout << endl;
+
+    tv.atualizarFirmware();
+    tv.ligar();
+    tv.atualizarFirmware();
+    tv.gerarRelatorio();
+
+    return 0;
+}
